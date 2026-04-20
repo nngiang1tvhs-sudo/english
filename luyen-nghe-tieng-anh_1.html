@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luyện Nghe Tiếng Anh — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f13;
+    --surface: #16181f;
+    --surface2: #1e2029;
+    --border: rgba(255,255,255,0.07);
+    --accent: #4fffb0;
+    --accent2: #4fc3ff;
+    --accent3: #ff7eb3;
+    --text: #f0f0f0;
+    --muted: #8a8fa8;
+    --morning: #ffb347;
+    --evening: #4fc3ff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .header-left h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .header-left h1 span { color: var(--accent); }
+  .header-left p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 0.4rem;
+    font-weight: 300;
+  }
+  .date-badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  /* Tab nav */
+  .tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-btn:hover:not(.active) { color: var(--text); }
+
+  /* Panels */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Section label */
+  .sec-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin: 2rem 0 1rem;
+  }
+  .sec-label:first-child { margin-top: 0; }
+
+  /* Time block cards */
+  .session {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.25rem 1.4rem;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1.2rem;
+    align-items: flex-start;
+    transition: border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .session::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 0 2px 2px 0;
+  }
+  .session.morning::before { background: var(--morning); }
+  .session.evening::before { background: var(--evening); }
+  .session:hover { border-color: rgba(255,255,255,0.15); }
+
+  .time-tag {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 52px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+  .time-tag .time {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.2;
+  }
+  .time-tag .duration {
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-top: 3px;
+    text-align: center;
+  }
+
+  .session-content { flex: 1; min-width: 0; }
+  .session-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+  .session-desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 0.7rem;
+    font-weight: 300;
+  }
+  .session-desc strong { color: var(--text); font-weight: 500; }
+
+  /* Link pills */
+  .links { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .link-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 100px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.15s, transform 0.15s;
+    border: 1px solid;
+  }
+  .link-pill:hover { opacity: 0.75; transform: translateY(-1px); }
+  .link-pill.green { background: rgba(79,255,176,0.1); border-color: rgba(79,255,176,0.3); color: var(--accent); }
+  .link-pill.blue { background: rgba(79,195,255,0.1); border-color: rgba(79,195,255,0.3); color: var(--accent2); }
+  .link-pill.pink { background: rgba(255,126,179,0.1); border-color: rgba(255,126,179,0.3); color: var(--accent3); }
+  .link-pill.orange { background: rgba(255,179,71,0.1); border-color: rgba(255,179,71,0.3); color: var(--morning); }
+
+  /* Arrow icon */
+  .arrow { font-size: 0.65rem; }
+
+  /* Highlight box */
+  .tip {
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    font-size: 0.85rem;
+    line-height: 1.65;
+    margin-top: 1.5rem;
+    font-weight: 300;
+  }
+  .tip.green { background: rgba(79,255,176,0.07); border: 1px solid rgba(79,255,176,0.2); color: #a0ffda; }
+  .tip.blue { background: rgba(79,195,255,0.07); border: 1px solid rgba(79,195,255,0.2); color: #a8deff; }
+  .tip strong { font-weight: 500; color: inherit; }
+
+  /* Weekly grid */
+  .week-grid { display: flex; flex-direction: column; gap: 0.75rem; }
+  .day-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+  .day-card:hover { border-color: rgba(255,255,255,0.15); }
+  .day-circle {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    border: 1px solid;
+  }
+  .day-info { flex: 1; }
+  .day-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.3rem;
+  }
+  .day-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.6; font-weight: 300; }
+  .day-links { margin-top: 0.6rem; }
+
+  /* Resources grid */
+  .res-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .res-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.2rem 1.3rem;
+    transition: border-color 0.2s, transform 0.2s;
+    text-decoration: none;
+    display: block;
+  }
+  .res-card:hover { border-color: rgba(255,255,255,0.2); transform: translateY(-2px); }
+  .res-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  .res-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .res-level {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 100px;
+    font-family: 'Syne', sans-serif;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+    margin-top: 1px;
+  }
+  .level-easy { background: rgba(79,255,176,0.15); color: var(--accent); }
+  .level-mid { background: rgba(79,195,255,0.15); color: var(--accent2); }
+  .level-hard { background: rgba(255,126,179,0.15); color: var(--accent3); }
+  .level-all { background: rgba(255,179,71,0.15); color: var(--morning); }
+
+  .res-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.6; font-weight: 300; margin-bottom: 0.8rem; }
+  .res-url {
+    font-size: 0.72rem;
+    color: var(--accent2);
+    opacity: 0.7;
+    word-break: break-all;
+  }
+  .res-type {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .method-cat {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 1.75rem 0 0.75rem;
+  }
+  .method-cat:first-child { margin-top: 0; }
+  .method-cat.green { color: var(--accent); }
+  .method-cat.blue { color: var(--accent2); }
+  .method-cat.pink { color: var(--accent3); }
+
+  /* Progress tracker */
+  .tracker-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-bottom: 1rem;
+  }
+  .tracker-day {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.62rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .tracker-day:hover { border-color: var(--accent); }
+  .tracker-day.done { background: rgba(79,255,176,0.15); border-color: var(--accent); color: var(--accent); }
+  .tracker-day.today { border-color: var(--accent); color: var(--text); }
+  .tracker-label {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .day-name {
+    text-align: center;
+    font-size: 0.62rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+  .tracker-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-lbl { font-size: 0.72rem; color: var(--muted); font-weight: 300; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    body { padding: 1.25rem 1rem 3rem; }
+    .res-grid { grid-template-columns: 1fr; }
+    .tracker-stats { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Luyện Nghe<br><span>Tiếng Anh</span></h1>
+    <p>Chữa điếc — 1h30 mỗi ngày · Sáng 7:30 + Tối 21:00</p>
+  </div>
+  <div class="date-badge" id="dateBadge">--</div>
+</div>
+
+<nav class="tabs">
+  <button class="tab-btn active" onclick="showTab('daily',this)">Hôm nay</button>
+  <button class="tab-btn" onclick="showTab('weekly',this)">Lịch tuần</button>
+  <button class="tab-btn" onclick="showTab('resources',this)">Tài nguyên</button>
+  <button class="tab-btn" onclick="showTab('tracker',this)">Tiến độ</button>
+</nav>
+
+<!-- ============ DAILY ============ -->
+<div id="daily" class="panel active">
+
+  <div class="sec-label">☀️ Buổi sáng — 7:30 đến 8:00</div>
+
+  <div class="session morning">
+    <div class="time-tag">
+      <div class="time">7:30<br>7:45</div>
+      <div class="duration">15 phút</div>
+    </div>
+    <div class="session-content">
+      <div class="session-title">Extensive Listening — Mở tai</div>
+      <div class="session-desc">Chọn 1 bài ngắn, nghe <strong>không dừng</strong>, không tra từ. Chỉ cần bắt ý chính và cảm nhận nhịp điệu. Đây là bước quan trọng nhất để tai quen với tốc độ tự nhiên.</div>
+      <div class="links">
+        <a class="link-pill green" href="https://www.bbc.co.uk/learningenglish/english/features/6-minute-english" target="_blank">BBC 6 Minute English <span class="arrow">↗</span></a>
+        <a class="link-pill blue" href="https://learningenglish.voanews.com/" target="_blank">VOA Learning English <span class="arrow">↗</span></a>
+        <a class="link-pill orange" href="https://www.elllo.org/" target="_blank">ELLLO.org <span class="arrow">↗</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="session morning">
+    <div class="time-tag">
+      <div class="time">7:45<br>8:00</div>
+      <div class="duration">15 phút</div>
+    </div>
+    <div class="session-content">
+      <div class="session-title">Shadowing — Nhái theo giọng</div>
+      <div class="session-desc">Dùng <strong>cùng bài vừa nghe</strong>. Phát lại và đọc to theo từng câu, nhái giọng và nhịp ngắt. Không cần hiểu 100%. Kỹ thuật này giúp tai nhận dạng âm thanh nhanh hơn nhiều.</div>
+      <div class="links">
+        <a class="link-pill green" href="https://www.bbc.co.uk/learningenglish/english/features/6-minute-english" target="_blank">Cùng bài BBC <span class="arrow">↗</span></a>
+        <a class="link-pill blue" href="https://shadoweng.com/" target="_blank">ShadowEng.com <span class="arrow">↗</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-label" style="margin-top:2rem;">🌙 Buổi tối — 21:00 đến 22:00</div>
+
+  <div class="session evening">
+    <div class="time-tag">
+      <div class="time">21:00<br>21:25</div>
+      <div class="duration">25 phút</div>
+    </div>
+    <div class="session-content">
+      <div class="session-title">Intensive Listening — Nghe có phân tích</div>
+      <div class="session-desc">Chọn bài <strong>khác bài sáng</strong> (~2 phút). Nghe lần 1 bắt ý chính → lần 2 ghi từ không hiểu → lần 3 tra nghĩa rồi nghe lại. Cần bài có transcript để đối chiếu.</div>
+      <div class="links">
+        <a class="link-pill blue" href="https://www.ted.com/talks?sort=newest&duration=0-6" target="_blank">Ted-Ed ngắn <span class="arrow">↗</span></a>
+        <a class="link-pill pink" href="https://learnenglish.britishcouncil.org/skills/listening" target="_blank">British Council <span class="arrow">↗</span></a>
+        <a class="link-pill green" href="https://www.elllo.org/" target="_blank">ELLLO <span class="arrow">↗</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="session evening">
+    <div class="time-tag">
+      <div class="time">21:25<br>21:50</div>
+      <div class="duration">25 phút</div>
+    </div>
+    <div class="session-content">
+      <div class="session-title">Dictation — Chép chính tả ⭐</div>
+      <div class="session-desc">Kỹ thuật <strong>số 1 để chữa điếc</strong>. Phát 1 câu → dừng → chép lại → kiểm tra với transcript. Làm 8–10 câu từ bài vừa nghe tối. Ghi lại chỗ nghe sai để ý sau.</div>
+      <div class="links">
+        <a class="link-pill green" href="https://dailydictation.com/" target="_blank">Daily Dictation ⭐ <span class="arrow">↗</span></a>
+        <a class="link-pill blue" href="https://www.listeninenglish.com/" target="_blank">ListenInEnglish <span class="arrow">↗</span></a>
+        <a class="link-pill orange" href="https://parroto.app/topics" target="_blank">Parroto App <span class="arrow">↗</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="session evening">
+    <div class="time-tag">
+      <div class="time">21:50<br>22:00</div>
+      <div class="duration">10 phút</div>
+    </div>
+    <div class="session-content">
+      <div class="session-title">Anki — Ôn từ vựng</div>
+      <div class="session-desc">Chỉ ôn những từ Anki nhắc hôm nay (spaced repetition tự tính). Thêm từ mới từ bài dictation vừa làm. Không cần học nhiều — 5–8 từ/ngày là đủ.</div>
+      <div class="links">
+        <a class="link-pill pink" href="https://ankiweb.net/" target="_blank">Anki Web (miễn phí) <span class="arrow">↗</span></a>
+        <a class="link-pill green" href="https://play.google.com/store/apps/details?id=com.ichi2.anki" target="_blank">Anki Android <span class="arrow">↗</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip green">
+    <strong>Nhớ nguyên tắc vàng:</strong> Extensive (sáng) giúp tai quen tốc độ tự nhiên. Intensive + Dictation (tối) giúp não phân biệt từng âm chính xác. Đều đặn mỗi ngày quan trọng hơn học nhiều một lúc.
+  </div>
+</div>
+
+<!-- ============ WEEKLY ============ -->
+<div id="weekly" class="panel">
+  <div class="sec-label">Chủ đề thay đổi theo ngày — tránh nhàm chán</div>
+  <div class="week-grid">
+
+    <div class="day-card">
+      <div class="day-circle" style="border-color:rgba(255,179,71,0.4);color:var(--morning);background:rgba(255,179,71,0.1);">T2</div>
+      <div class="day-info">
+        <div class="day-title">Tin tức ngắn</div>
+        <div class="day-desc">BBC News Minute (1 phút) hoặc VOA News Today. Phát âm chuẩn, tốc độ vừa — rất tốt để dictation tối.</div>
+        <div class="day-links">
+          <a class="link-pill orange" href="https://www.bbc.co.uk/learningenglish/english/features/news-report" target="_blank">BBC News Report <span class="arrow">↗</span></a>
+          <a class="link-pill blue" href="https://learningenglish.voanews.com/programs/voalearningenglish" target="_blank">VOA News <span class="arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-circle" style="border-color:rgba(79,255,176,0.4);color:var(--accent);background:rgba(79,255,176,0.1);">T3</div>
+      <div class="day-info">
+        <div class="day-title">Hội thoại đời thường</div>
+        <div class="day-desc">Podcast hội thoại tự nhiên — có slang, có connected speech. Gần với thực tế nhất khi nói chuyện với người nước ngoài.</div>
+        <div class="day-links">
+          <a class="link-pill green" href="https://www.elllo.org/english/Mixer/mixer.htm" target="_blank">ELLLO Mixer <span class="arrow">↗</span></a>
+          <a class="link-pill blue" href="https://www.allearsenglish.com/" target="_blank">All Ears English <span class="arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-circle" style="border-color:rgba(79,195,255,0.4);color:var(--accent2);background:rgba(79,195,255,0.1);">T4</div>
+      <div class="day-info">
+        <div class="day-title">Bài giảng / giải thích</div>
+        <div class="day-desc">Ted-Ed hoặc Kurzgesagt — phát âm rõ, có cấu trúc rõ ràng. Phù hợp nhất để làm dictation tối vì câu rõ ràng, không overlap.</div>
+        <div class="day-links">
+          <a class="link-pill pink" href="https://www.youtube.com/@TEDEd/videos" target="_blank">Ted-Ed YouTube <span class="arrow">↗</span></a>
+          <a class="link-pill blue" href="https://www.youtube.com/@kurzgesagt/videos" target="_blank">Kurzgesagt <span class="arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-circle" style="border-color:rgba(255,179,71,0.4);color:var(--morning);background:rgba(255,179,71,0.1);">T5</div>
+      <div class="day-info">
+        <div class="day-title">Tin tức — đổi nguồn</div>
+        <div class="day-desc">CNN 10 hoặc Reuters. Nghe cùng thể loại 2 lần/tuần giúp tai quen pattern nhanh hơn nhiều so với mỗi ngày 1 kiểu.</div>
+        <div class="day-links">
+          <a class="link-pill orange" href="https://www.youtube.com/@CNN10/videos" target="_blank">CNN 10 YouTube <span class="arrow">↗</span></a>
+          <a class="link-pill blue" href="https://www.listeninenglish.com/" target="_blank">ListenInEnglish <span class="arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-circle" style="border-color:rgba(255,126,179,0.4);color:var(--accent3);background:rgba(255,126,179,0.1);">T6</div>
+      <div class="day-info">
+        <div class="day-title">Phim / series — phụ đề EN</div>
+        <div class="day-desc">Xem 10–15 phút với phụ đề tiếng Anh (không phải tiếng Việt). Dùng Language Reactor trên Netflix để bật phụ đề đôi cực tiện.</div>
+        <div class="day-links">
+          <a class="link-pill pink" href="https://www.languagereactor.com/" target="_blank">Language Reactor <span class="arrow">↗</span></a>
+          <a class="link-pill blue" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">YouTube EN subs <span class="arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-circle" style="border-color:rgba(79,255,176,0.4);color:var(--accent);background:rgba(79,255,176,0.1);">T7</div>
+      <div class="day-info">
+        <div class="day-title">Nội dung yêu thích cá nhân</div>
+        <div class="day-desc">Chủ đề bạn thực sự quan tâm — thể thao, công nghệ, kinh doanh, gaming... Khi thích nội dung, não học nhanh hơn gấp đôi.</div>
+        <div class="day-links">
+          <a class="link-pill green" href="https://www.youtube.com/" target="_blank">YouTube (chủ đề bạn thích) <span class="arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-card">
+      <div class="day-circle" style="border-color:rgba(138,143,168,0.4);color:var(--muted);background:rgba(138,143,168,0.08);">CN</div>
+      <div class="day-info">
+        <div class="day-title">Ôn tập nhẹ + kiểm tra tiến bộ</div>
+        <div class="day-desc">Nghe lại 1 bài từ đầu tuần — có nghe rõ hơn không? Ôn Anki 15 phút. Không cần học nặng, giữ thói quen là quan trọng nhất.</div>
+        <div class="day-links">
+          <a class="link-pill blue" href="https://ankiweb.net/" target="_blank">Anki — ôn từ tuần này <span class="arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="tip blue">
+    <strong>Mẹo tuần:</strong> Mỗi tuần chỉ dùng 2–3 nguồn cố định, đừng nhảy quá nhiều kênh. Quen với giọng đọc của 1 người thì tai nhận dạng âm nhanh hơn nhiều.
+  </div>
+</div>
+
+<!-- ============ RESOURCES ============ -->
+<div id="resources" class="panel">
+
+  <div class="method-cat green">🟢 Tháng 1 — Nội dung dễ (nói chậm, rõ)</div>
+  <div class="res-grid">
+    <a class="res-card" href="https://www.bbc.co.uk/learningenglish/english/features/6-minute-english" target="_blank">
+      <div class="res-header"><div class="res-name">BBC 6 Minute English</div><div class="res-level level-easy">DỄ</div></div>
+      <div class="res-desc">Podcast 6 phút về chủ đề thú vị (công nghệ, xã hội, lịch sử). Có script đầy đủ để đối chiếu. Phát âm chuẩn British. Cực kỳ phù hợp để shadowing buổi sáng.</div>
+      <div class="res-type">Extensive + Shadowing</div>
+      <div class="res-url">bbc.co.uk/learningenglish</div>
+    </a>
+    <a class="res-card" href="https://learningenglish.voanews.com/" target="_blank">
+      <div class="res-header"><div class="res-name">VOA Learning English</div><div class="res-level level-easy">DỄ</div></div>
+      <div class="res-desc">Tin tức tiếng Anh nói chậm, phát âm chuẩn American. Có transcript, audio tốc độ thường và tốc độ chậm. Tuyệt vời cho người mới bắt đầu luyện nghe tin tức.</div>
+      <div class="res-type">Extensive + Dictation</div>
+      <div class="res-url">learningenglish.voanews.com</div>
+    </a>
+    <a class="res-card" href="https://www.elllo.org/" target="_blank">
+      <div class="res-header"><div class="res-name">ELLLO.org</div><div class="res-level level-easy">DỄ → MID</div></div>
+      <div class="res-desc">2000+ bài nghe miễn phí, có quiz và từ vựng. Người nói đến từ nhiều quốc gia — giúp tai quen nhiều giọng khác nhau. Có transcript đầy đủ.</div>
+      <div class="res-type">Intensive Listening</div>
+      <div class="res-url">elllo.org</div>
+    </a>
+    <a class="res-card" href="https://dailydictation.com/" target="_blank">
+      <div class="res-header"><div class="res-name">Daily Dictation ⭐</div><div class="res-level level-all">MỌI CẤP</div></div>
+      <div class="res-desc">Website dictation tốt nhất — 1000+ bài, từ hội thoại đơn giản đến IELTS/TOEFL. Giao diện: nghe → gõ → tự động chấm điểm → xem transcript. 100% miễn phí.</div>
+      <div class="res-type">Dictation ⭐ Ưu tiên số 1</div>
+      <div class="res-url">dailydictation.com</div>
+    </a>
+  </div>
+
+  <div class="method-cat blue">🔵 Tháng 2 — Tốc độ bình thường</div>
+  <div class="res-grid">
+    <a class="res-card" href="https://www.ted.com/talks?sort=newest&duration=0-6" target="_blank">
+      <div class="res-header"><div class="res-name">Ted-Ed (ngắn)</div><div class="res-level level-mid">TRUNG BÌNH</div></div>
+      <div class="res-desc">Video giải thích các chủ đề thú vị, 5–6 phút. Phát âm rất rõ, có script. Phù hợp nhất để intensive listening buổi tối vì câu rõ ràng và có cấu trúc.</div>
+      <div class="res-type">Intensive + Dictation</div>
+      <div class="res-url">ted.com/talks</div>
+    </a>
+    <a class="res-card" href="https://learnenglish.britishcouncil.org/skills/listening" target="_blank">
+      <div class="res-header"><div class="res-name">British Council Listening</div><div class="res-level level-mid">TRUNG BÌNH</div></div>
+      <div class="res-desc">Bài nghe theo cấp độ A1–C1, có quiz và transcript. Rất có hệ thống và đáng tin cậy. Nên dùng level B1 (intermediate) phù hợp với TOEIC 565.</div>
+      <div class="res-type">Intensive Listening</div>
+      <div class="res-url">learnenglish.britishcouncil.org</div>
+    </a>
+    <a class="res-card" href="https://www.allearsenglish.com/" target="_blank">
+      <div class="res-header"><div class="res-name">All Ears English</div><div class="res-level level-mid">TRUNG BÌNH</div></div>
+      <div class="res-desc">Podcast 2 người Mỹ nói chuyện tự nhiên — rất nhiều slang, idiom, connected speech. Giúp tai quen hội thoại thực tế, không phải tiếng Anh sách vở.</div>
+      <div class="res-type">Extensive Listening</div>
+      <div class="res-url">allearsenglish.com</div>
+    </a>
+    <a class="res-card" href="https://www.listeninenglish.com/" target="_blank">
+      <div class="res-header"><div class="res-name">Listen In English</div><div class="res-level level-mid">TRUNG BÌNH</div></div>
+      <div class="res-desc">BBC news, TV clips, podcasts — tất cả có transcript và quiz. Bài ngắn 2–5 phút, rất phù hợp để làm dictation tối vì có thể chọn đúng độ khó.</div>
+      <div class="res-type">Intensive + Dictation</div>
+      <div class="res-url">listeninenglish.com</div>
+    </a>
+  </div>
+
+  <div class="method-cat pink">🔴 Tháng 3 — Nội dung native speaker</div>
+  <div class="res-grid">
+    <a class="res-card" href="https://www.youtube.com/@kurzgesagt/videos" target="_blank">
+      <div class="res-header"><div class="res-name">Kurzgesagt</div><div class="res-level level-hard">NÂNG CAO</div></div>
+      <div class="res-desc">Video khoa học + triết học chất lượng cao, phát âm chuẩn, tốc độ bình thường. Rất hấp dẫn và có auto-captions tốt trên YouTube.</div>
+      <div class="res-type">Extensive Listening</div>
+      <div class="res-url">youtube.com/@kurzgesagt</div>
+    </a>
+    <a class="res-card" href="https://www.languagereactor.com/" target="_blank">
+      <div class="res-header"><div class="res-name">Language Reactor</div><div class="res-level level-hard">NÂNG CAO</div></div>
+      <div class="res-desc">Extension Chrome cho Netflix/YouTube — hiện phụ đề đôi EN/VI, click vào từ để xem nghĩa ngay. Xem phim mà vẫn học. Miễn phí với tính năng cơ bản.</div>
+      <div class="res-type">Extensive (phim + series)</div>
+      <div class="res-url">languagereactor.com</div>
+    </a>
+    <a class="res-card" href="https://parroto.app/topics" target="_blank">
+      <div class="res-header"><div class="res-name">Parroto App</div><div class="res-level level-all">MỌI CẤP</div></div>
+      <div class="res-desc">Kết hợp dictation + shadowing trong 1 app — dùng video YouTube thực tế. Có BBC Learning English, VOA, phim ngắn. Giao diện đẹp và dễ dùng trên điện thoại.</div>
+      <div class="res-type">Dictation + Shadowing</div>
+      <div class="res-url">parroto.app</div>
+    </a>
+    <a class="res-card" href="https://shadoweng.com/" target="_blank">
+      <div class="res-header"><div class="res-name">ShadowEng.com</div><div class="res-level level-all">MỌI CẤP</div></div>
+      <div class="res-desc">Luyện shadowing online — nghe và nói theo ngay trên trình duyệt. Có nhiều bài từ dễ đến khó. Miễn phí hoàn toàn, không cần tạo tài khoản.</div>
+      <div class="res-type">Shadowing</div>
+      <div class="res-url">shadoweng.com</div>
+    </a>
+  </div>
+
+  <div class="tip green" style="margin-top:1.5rem;">
+    <strong>Tất cả đều miễn phí.</strong> Không cần trả phí bất kỳ tài nguyên nào ở trên. Bắt đầu tháng 1 chỉ cần: BBC 6 Minute English (sáng) + Daily Dictation (tối) là đủ.
+  </div>
+</div>
+
+<!-- ============ TRACKER ============ -->
+<div id="tracker" class="panel">
+  <div class="sec-label">Điểm danh — Tháng này</div>
+
+  <div class="tracker-label">
+    <div class="day-name">T2</div>
+    <div class="day-name">T3</div>
+    <div class="day-name">T4</div>
+    <div class="day-name">T5</div>
+    <div class="day-name">T6</div>
+    <div class="day-name">T7</div>
+    <div class="day-name">CN</div>
+  </div>
+  <div class="tracker-grid" id="trackerGrid"></div>
+
+  <div style="font-size:0.78rem;color:var(--muted);margin-top:0.5rem;">Click vào ô để đánh dấu ngày đã học ✓</div>
+
+  <div class="tracker-stats">
+    <div class="stat-box">
+      <div class="stat-num" id="streakNum" style="color:var(--accent);">0</div>
+      <div class="stat-lbl">Streak hiện tại</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="doneNum" style="color:var(--accent2);">0</div>
+      <div class="stat-lbl">Ngày đã học</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="pctNum" style="color:var(--morning);">0%</div>
+      <div class="stat-lbl">Hoàn thành tháng</div>
+    </div>
+  </div>
+
+  <div class="tip blue" style="margin-top:1.5rem;">
+    <strong>Đều đặn hơn cường độ.</strong> 1h30 mỗi ngày liên tục 90 ngày hiệu quả hơn nhiều so với học 5 tiếng vào cuối tuần. Cố gắng giữ streak — đó là chỉ số quan trọng nhất.
+  </div>
+</div>
+
+<script>
+// Update date
+const d = new Date();
+const days = ['Chủ nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+const months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+document.getElementById('dateBadge').textContent = days[d.getDay()] + ' · ' + d.getDate() + '/' + months[d.getMonth()] + '/' + d.getFullYear();
+
+// Tab switching
+function showTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Tracker
+const now = new Date();
+const year = now.getFullYear();
+const month = now.getMonth();
+const totalDays = new Date(year, month + 1, 0).getDate();
+const today = now.getDate();
+
+// Get first day of month (shift so Mon=0)
+let firstDay = new Date(year, month, 1).getDay();
+firstDay = (firstDay === 0) ? 6 : firstDay - 1;
+
+const storageKey = 'listening_tracker_' + year + '_' + month;
+let done = JSON.parse(localStorage.getItem(storageKey) || '[]');
+
+function renderTracker() {
+  const grid = document.getElementById('trackerGrid');
+  grid.innerHTML = '';
+
+  // Empty cells before first day
+  for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'tracker-day';
+    empty.style.opacity = '0.2';
+    empty.style.cursor = 'default';
+    grid.appendChild(empty);
+  }
+
+  for (let day = 1; day <= totalDays; day++) {
+    const cell = document.createElement('div');
+    cell.className = 'tracker-day' + (done.includes(day) ? ' done' : '') + (day === today ? ' today' : '');
+    cell.textContent = day;
+    cell.onclick = () => toggleDay(day);
+    grid.appendChild(cell);
+  }
+
+  // Stats
+  document.getElementById('doneNum').textContent = done.length;
+  document.getElementById('pctNum').textContent = Math.round(done.length / totalDays * 100) + '%';
+
+  // Streak: count consecutive days up to today
+  let streak = 0;
+  for (let i = today; i >= 1; i--) {
+    if (done.includes(i)) streak++;
+    else break;
+  }
+  document.getElementById('streakNum').textContent = streak;
+}
+
+function toggleDay(day) {
+  const idx = done.indexOf(day);
+  if (idx > -1) done.splice(idx, 1);
+  else done.push(day);
+  localStorage.setItem(storageKey, JSON.stringify(done));
+  renderTracker();
+}
+
+renderTracker();
+</script>
+</body>
+</html>
